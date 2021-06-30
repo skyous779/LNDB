@@ -4,6 +4,8 @@ import numpy as np
 import glob
 from tqdm import tqdm
 
+
+
 #转化数据
 mhd_list =  glob.glob('mask/LNDb-00*.mhd')
 print(mhd_list)
