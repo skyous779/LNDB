@@ -6,8 +6,8 @@ class hparams:
     out_class = 1
     in_class = 1
 
-    crop_or_pad_size = 256
-    patch_size = 64
+    crop_or_pad_size = 512
+    patch_size = 128    #每次卷积的大小（batch每次输入patch数目？）
 
     fold_arch = '*.nii.gz'
 

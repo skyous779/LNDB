@@ -1,3 +1,5 @@
+#检测数据像素是否有全部为1的图片
+
 from pathlib import Path
 from glob import glob
 from hparam import hparams as hp

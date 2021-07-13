@@ -1,3 +1,7 @@
+'''
+检查数据预处理后的图片，是否存在数据全黑的情况
+'''
+
 import torchio as tio
 import SimpleITK as sitk
 import nibabel as nib
@@ -60,7 +64,7 @@ def check_zeros(images_dir,labels_dir):
         )
         my_transform = tio.CropOrPad(
             (256, 256, 256),
-            mask_name='label',
+            mask_name='label', #以label为中心进行剪切
         )
         transformed = my_transform(subject)
         overcoming = np.any(transformed.label.data.numpy())

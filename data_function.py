@@ -63,10 +63,12 @@ class MedData_train(torch.utils.data.Dataset):
             for (image_path, label_path) in zip(self.image_paths, self.label_paths):
                 
                 #原版
+                #suject :一份带原片和标签
                 subject = tio.Subject(
                     source=tio.ScalarImage(image_path),
                     label=tio.LabelMap(label_path),
                 )
+                #subjects:一个集合   
                 self.subjects.append(subject)
 
                 #第一版修改，失败
@@ -81,16 +83,16 @@ class MedData_train(torch.utils.data.Dataset):
                 
                 #第三版修改,对数据集进行一个裁剪，使它能够很好的缩小图像
                 
-                subject = tio.Subject(
-                    source=tio.ScalarImage(image_path),
-                    label=tio.LabelMap(label_path),
-                )
-                my_transform = tio.CropOrPad(
-                    (256, 256, 256),
-                    mask_name='label',
-                )
-                transformed = my_transform(subject)
-                self.subjects.append(transformed)
+                # subject = tio.Subject(
+                #     source=tio.ScalarImage(image_path),
+                #     label=tio.LabelMap(label_path),
+                # )
+                # my_transform = tio.CropOrPad(
+                #     (256, 256, 256),
+                #     mask_name='label',
+                # )
+                # transformed = my_transform(subject)
+                # self.subjects.append(transformed)
 
 
         else:#各大分割的label
@@ -123,14 +125,14 @@ class MedData_train(torch.utils.data.Dataset):
 
         self.transforms = self.transform()
 
-        self.training_set = tio.SubjectsDataset(self.subjects, transform=self.transforms)
+        self.training_set = tio.SubjectsDataset(self.subjects, transform=self.transforms)  #一个集合
 
 
         self.queue_dataset = Queue(
             self.training_set,
             queue_length,
             samples_per_volume,
-            UniformSampler(patch_size),
+            UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
         )
 
 

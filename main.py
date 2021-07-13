@@ -195,7 +195,8 @@ def train():
 
 
     #处理数据
-    train_dataset = MedData_train(source_train_dir,label_train_dir)
+    train_dataset = MedData_train(source_train_dir,label_train_dir) #主要用的queue的特征
+
 
     train_loader = DataLoader(train_dataset.queue_dataset, 
                             batch_size=args.batch, 
@@ -338,46 +339,47 @@ def train():
                 outputs = outputs[0].cpu().detach().numpy()
                 affine = batch['source']['affine'][0].numpy()
 
-                if (hp.in_class == 1) and (hp.out_class == 1) :
-                    source_image = torchio.ScalarImage(tensor=x, affine=affine)
-                    source_image.save(os.path.join(args.output_dir,("step-{}-source.mhd").format(epoch)))
+                #屏蔽以下内容                    
+                # if (hp.in_class == 1) and (hp.out_class == 1) :
+                #     source_image = torchio.ScalarImage(tensor=x, affine=affine)
+                #     source_image.save(os.path.join(args.output_dir,("step-{}-source.mhd").format(epoch)))
 
-                    label_image = torchio.ScalarImage(tensor=y, affine=affine)
-                    label_image.save(os.path.join(args.output_dir,("step-{}-gt.mhd").format(epoch)))
+                #     label_image = torchio.ScalarImage(tensor=y, affine=affine)
+                #     label_image.save(os.path.join(args.output_dir,("step-{}-gt.mhd").format(epoch)))
 
-                    output_image = torchio.ScalarImage(tensor=outputs, affine=affine)
-                    output_image.save(os.path.join(args.output_dir,("step-{}-predict.mhd").format(epoch)))
+                #     output_image = torchio.ScalarImage(tensor=outputs, affine=affine)
+                #     output_image.save(os.path.join(args.output_dir,("step-{}-predict.mhd").format(epoch)))
                 
-                else:   #多分类
-                    y = np.expand_dims(y, axis=1)
-                    outputs = np.expand_dims(outputs, axis=1)
+                # else:   #多分类
+                #     y = np.expand_dims(y, axis=1)
+                #     outputs = np.expand_dims(outputs, axis=1)
 
-                    source_image = torchio.ScalarImage(tensor=x, affine=affine)
-                    source_image.save(os.path.join(args.output_dir,("step-{}-source.mhd").format(epoch)))
+                #     source_image = torchio.ScalarImage(tensor=x, affine=affine)
+                #     source_image.save(os.path.join(args.output_dir,("step-{}-source.mhd").format(epoch)))
 
-                    label_image_artery = torchio.ScalarImage(tensor=y[0], affine=affine)
-                    label_image_artery.save(os.path.join(args.output_dir,("step-{}-gt_artery.mhd").format(epoch)))
+                #     label_image_artery = torchio.ScalarImage(tensor=y[0], affine=affine)
+                #     label_image_artery.save(os.path.join(args.output_dir,("step-{}-gt_artery.mhd").format(epoch)))
 
-                    output_image_artery = torchio.ScalarImage(tensor=outputs[0], affine=affine)
-                    output_image_artery.save(os.path.join(args.output_dir,("step-{}-predict_artery.mhd").format(epoch)))
+                #     output_image_artery = torchio.ScalarImage(tensor=outputs[0], affine=affine)
+                #     output_image_artery.save(os.path.join(args.output_dir,("step-{}-predict_artery.mhd").format(epoch)))
 
-                    label_image_lung = torchio.ScalarImage(tensor=y[1], affine=affine)
-                    label_image_lung.save(os.path.join(args.output_dir,("step-{}-gt_lung.mhd").format(epoch)))
+                #     label_image_lung = torchio.ScalarImage(tensor=y[1], affine=affine)
+                #     label_image_lung.save(os.path.join(args.output_dir,("step-{}-gt_lung.mhd").format(epoch)))
 
-                    output_image_lung = torchio.ScalarImage(tensor=outputs[1], affine=affine)
-                    output_image_lung.save(os.path.join(args.output_dir,("step-{}-predict_lung.mhd").format(epoch)))
+                #     output_image_lung = torchio.ScalarImage(tensor=outputs[1], affine=affine)
+                #     output_image_lung.save(os.path.join(args.output_dir,("step-{}-predict_lung.mhd").format(epoch)))
 
-                    label_image_trachea = torchio.ScalarImage(tensor=y[2], affine=affine)
-                    label_image_trachea.save(os.path.join(args.output_dir,("step-{}-gt_trachea.mhd").format(epoch)))
+                #     label_image_trachea = torchio.ScalarImage(tensor=y[2], affine=affine)
+                #     label_image_trachea.save(os.path.join(args.output_dir,("step-{}-gt_trachea.mhd").format(epoch)))
 
-                    output_image_trachea = torchio.ScalarImage(tensor=outputs[2], affine=affine)
-                    output_image_trachea.save(os.path.join(args.output_dir,("step-{}-predict_trachea.mhd").format(epoch)))
+                #     output_image_trachea = torchio.ScalarImage(tensor=outputs[2], affine=affine)
+                #     output_image_trachea.save(os.path.join(args.output_dir,("step-{}-predict_trachea.mhd").format(epoch)))
 
-                    label_image_vein = torchio.ScalarImage(tensor=y[3], affine=affine)
-                    label_image_vein.save(os.path.join(args.output_dir,("step-{}-gt_vein.mhd").format(epoch)))
+                #     label_image_vein = torchio.ScalarImage(tensor=y[3], affine=affine)
+                #     label_image_vein.save(os.path.join(args.output_dir,("step-{}-gt_vein.mhd").format(epoch)))
 
-                    output_image_vein = torchio.ScalarImage(tensor=outputs[3], affine=affine)
-                    output_image_vein.save(os.path.join(args.output_dir,("step-{}-predict_vein.mhd").format(epoch)))           
+                #     output_image_vein = torchio.ScalarImage(tensor=outputs[3], affine=affine)
+                #     output_image_vein.save(os.path.join(args.output_dir,("step-{}-predict_vein.mhd").format(epoch)))           
 
 
     writer.close()
