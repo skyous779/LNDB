@@ -28,14 +28,13 @@ train_dataset = MedData_train(source_train_dir,label_train_dir) #主要用的que
 patch_size = hp.patch_size
 queue_length = 5
 samples_per_volume = 5
-sampler = WeightedSampler(patch_size, 'label')
 #sampler = UniformSampler(patch_size)
 
 my_queue_dataset = tio.Queue(
     train_dataset.training_set,
     queue_length,
     samples_per_volume,
-    tio.data.WeightedSampler(patch_size, 'label'), #Randomly extract patches from a volume with uniform probability.
+    WeightedSampler(patch_size, 'label'), #Randomly extract patches from a volume with uniform probability.
 )
 # print(dir(my_queue_dataset))
 # print(my_queue_dataset.patches_list)

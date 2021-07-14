@@ -65,12 +65,12 @@ class MedData_train(torch.utils.data.Dataset):
                 
                 #原版
                 #suject :一份带原片和标签
-                subject = tio.Subject(
-                    source=tio.ScalarImage(image_path),
-                    label=tio.LabelMap(label_path),
-                )
-                #subjects:一个集合   
-                self.subjects.append(subject)
+                # subject = tio.Subject(
+                #     source=tio.ScalarImage(image_path),
+                #     label=tio.LabelMap(label_path),
+                # )
+                # #subjects:一个集合   
+                # self.subjects.append(subject)
 
                 #第一版修改，失败
                 # ct = tio.ScalarImage(image_path)
@@ -94,7 +94,14 @@ class MedData_train(torch.utils.data.Dataset):
                 # )
                 # transformed = my_transform(subject)
                 # self.subjects.append(transformed)
-
+                
+                #第四版
+                subject = tio.Subject(
+                    source=tio.ScalarImage(image_path),
+                    label=tio.Image(label_path,type=tio.SAMPLING_MAP),
+                )
+                #subjects:一个集合   
+                self.subjects.append(subject)
 
         else:#各大分割的label
             images_dir = Path(images_dir)
