@@ -15,6 +15,7 @@ from torchio import AFFINE, DATA
 import torchio
 from torchio import ScalarImage, LabelMap, Subject, SubjectsDataset, Queue
 from torchio.data import UniformSampler
+from torchio.data import WeightedSampler
 from torchio.transforms import (
     RandomFlip,
     RandomAffine,
@@ -127,12 +128,13 @@ class MedData_train(torch.utils.data.Dataset):
 
         self.training_set = tio.SubjectsDataset(self.subjects, transform=self.transforms)  #一个集合
 
-
+#修改了采样
         self.queue_dataset = Queue(
             self.training_set,
             queue_length,
             samples_per_volume,
-            UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
+            #UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
+            WeightedSampler(patch_size, 'label')
         )
 
 
