@@ -13,3 +13,4 @@ for i in tqdm(range(len(mhd_list))):  #tqdm
 
 nii_list = glob.glob('mask/nii/*.nii.gz')
 print(nii_list)
+

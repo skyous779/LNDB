@@ -1,3 +1,4 @@
+#一张图片5个batch ,一共5张图片，batch一共有25个。
 import numpy as np
 from medpy.io import load,save
 from hparam import hparams as hp
@@ -5,7 +6,12 @@ from utils.metric import metric
 from data_function import MedData_train
 import torchio as tio
 from torch.utils.data import DataLoader
-
+from torchio.data import UniformSampler
+from torchio.data import WeightedSampler
+import nibabel as nib
+import numpy as np
+import glob
+from tqdm import tqdm
 source_train_dir = hp.source_train_dir
 label_train_dir = hp.label_train_dir
 
@@ -19,10 +25,12 @@ train_dataset = MedData_train(source_train_dir,label_train_dir) #主要用的que
 # print(train_dataset.queue_dataset.subjects_dataset)
 
 #尝试WeightedSampler
-patch_size = 128
+patch_size = hp.patch_size
 queue_length = 5
 samples_per_volume = 5
-sampler = tio.data.WeightedSampler(patch_size, 'label')
+sampler = WeightedSampler(patch_size, 'label')
+#sampler = UniformSampler(patch_size)
+
 my_queue_dataset = tio.Queue(
     train_dataset.training_set,
     queue_length,
@@ -39,5 +47,8 @@ train_loader = DataLoader(my_queue_dataset,
                         drop_last=True)
 print(train_loader.dataset)
 for i, batch in enumerate(train_loader):
-    print(type(batch))
-                    
+    #affine = batch['label']['affine'].numpy()
+    print(i,batch['location'])
+    #print(batch)
+
+                   
