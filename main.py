@@ -61,9 +61,9 @@ def parse_training_args(parser):
 
     # training
     training = parser.add_argument_group('training setup')
-    training.add_argument('--epochs', type=int, default=1, help='Number of total epochs to run')
-    training.add_argument('--epochs-per-checkpoint', type=int, default=100, help='Number of epochs per checkpoint')
-    training.add_argument('--batch', type=int, default=1, help='batch-size')  
+    training.add_argument('--epochs', type=int, default=2, help='Number of total epochs to run')
+    training.add_argument('--epochs-per-checkpoint', type=int, default=50, help='Number of epochs per checkpoint')
+    training.add_argument('--batch', type=int, default=2, help='batch-size')  
     training.add_argument('--sample', type=int, default=4, help='number of samples during training')  
 
     parser.add_argument(
@@ -269,7 +269,7 @@ def train():
             labels[labels>0.5] = 1
             labels[labels<=0.5] = 0
 
-
+            y = y/255.
             loss = criterion(outputs, y)
 
             num_iters += 1
@@ -425,8 +425,11 @@ def test():
         # model = PSPNet(in_class=hp.in_class,n_classes=hp.out_class)
 
     elif hp.mode == '3d':
-        from models.three_d.unet3d import UNet
-        model = UNet(in_channels=hp.in_class, n_classes=hp.out_class, base_n_filter=2)
+        # from models.three_d.unet3d import UNet3D
+        # model = UNet3D(in_channels=hp.in_class, n_classes=hp.out_class, base_n_filter=2)
+
+        from models.three_d.unet3d import UNet3D
+        model = UNet3D(in_channels=hp.in_class, out_channels=hp.out_class, init_features=32)
 
         #from models.three_d.fcn3d import FCN_Net
         #model = FCN_Net(in_channels =hp.in_class,n_class =hp.out_class)
@@ -498,6 +501,7 @@ def test():
                 logits = torch.sigmoid(outputs)
 
                 labels = logits.clone()
+
                 labels[labels>0.5] = 255
                 labels[labels<=0.5] = 0
 

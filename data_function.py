@@ -151,7 +151,7 @@ class MedData_train(torch.utils.data.Dataset):
 
 
         
-        if hp.mode == '3d':     #组合，由于我使用自己的crop,所以我把下面的crop进行注释掉
+        if hp.mode == '3d':     
             training_transform = Compose([
             # ToCanonical(),
             CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size, hp.crop_or_pad_size), padding_mode='reflect',),
@@ -167,7 +167,7 @@ class MedData_train(torch.utils.data.Dataset):
             
         elif hp.mode == '2d':
             training_transform = Compose([
-            #CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size,1), padding_mode='reflect'),
+            CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size,1), padding_mode='reflect'),
             # RandomMotion(),
             RandomBiasField(),
             ZNormalization(),

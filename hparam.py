@@ -1,6 +1,6 @@
 class hparams:
 
-    train_or_test = 'train'
+    train_or_test = 'test'
     debug = False
     mode = '3d' # '2d or '3d'
     out_class = 1
@@ -14,7 +14,7 @@ class hparams:
 
     source_train_dir = 'org/nii'
     label_train_dir = 'mask/nii'
-    source_test_dir = 'img'
-    label_test_dir = 'label'
+    source_test_dir = 'org/nii'
+    label_test_dir = 'mask/nii'
 
     output_dir_test = 'results'

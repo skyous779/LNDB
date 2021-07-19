@@ -8,10 +8,11 @@ import torchio as tio
 from torch.utils.data import DataLoader
 from torchio.data import UniformSampler
 from torchio.data import WeightedSampler
-import nibabel as nib
+
 import numpy as np
-import glob
-from tqdm import tqdm
+import time
+start = time.time()
+
 source_train_dir = hp.source_train_dir
 label_train_dir = hp.label_train_dir
 
@@ -26,16 +27,17 @@ train_dataset = MedData_train(source_train_dir,label_train_dir) #主要用的que
 
 #尝试WeightedSampler
 patch_size = hp.patch_size
-queue_length = 5
-samples_per_volume = 5
+queue_length = 40
+samples_per_volume = 10
 #sampler = UniformSampler(patch_size)
 
 my_queue_dataset = tio.Queue(
     train_dataset.training_set,
     queue_length,
     samples_per_volume,
-    WeightedSampler(patch_size, 'label'), #Randomly extract patches from a volume with uniform probability.
-)
+    WeightedSampler((64,64,1), 'label'), 
+    #UniformSampler((64,64,1)) #Randomly extract patches from a volume with uniform probability.
+    )       
 # print(dir(my_queue_dataset))
 # print(my_queue_dataset.patches_list)
 
@@ -45,9 +47,8 @@ train_loader = DataLoader(my_queue_dataset,
                         pin_memory=True,
                         drop_last=True)
 print(train_loader.dataset)
-for i, batch in enumerate(train_loader):
-    #affine = batch['label']['affine'].numpy()
-    print(i,batch['location'])
+for i, batch in enumerate(train_loader):  #每次打印一次queue_length长的
+    print(i+1,batch['location'])
     #print(batch)
-
-                   
+end = time.time()
+print(end - start)
