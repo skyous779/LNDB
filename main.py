@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 from PIL import Image
 import torch
+from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch import nn
@@ -187,9 +188,14 @@ def train():
 
     model.cuda()
 
-    from loss_function import Binary_Loss,DiceLoss
+    from loss_function import Binary_Loss,DiceLoss,FocalLoss,BinaryDiceLoss
+    
     criterion = Binary_Loss().cuda()
 
+    #focal = FocalLoss().cuda()
+    
+    dice_loss=BinaryDiceLoss().cuda()
+    
 
     writer = SummaryWriter(args.output_dir)
 
@@ -235,6 +241,8 @@ def train():
                 x = batch['source']['data']
                 y = batch['label']['data']
 
+                #print(torch.min(y),torch.max(y))
+
                 x = x.type(torch.FloatTensor).cuda()
                 y = y.type(torch.FloatTensor).cuda()
 
@@ -264,13 +272,29 @@ def train():
 
 
             # for metrics
-            logits = torch.sigmoid(outputs)
+            logits = torch.sigmoid(outputs)  #转化成概率
             labels = logits.clone()
             labels[labels>0.5] = 1
             labels[labels<=0.5] = 0
 
+            #outputs = outputs.type(torch.FloatTensor).cuda()
+            #outputs = outputs.to(device)
+
             y = y/255.
-            loss = criterion(outputs, y)
+
+            # alpha=0.25
+            # gamma=2
+            # BCE_loss = F.binary_cross_entropy(outputs, y).cuda
+            # #BCE_loss = BCE_loss_fuc(outputs, y)
+            # pt = torch.exp(-BCE_loss)
+            # F_loss = alpha * (1-pt)**gamma * BCE_loss
+            # loss = torch.mean(F_loss)
+
+            #loss = criterion(outputs, y)    
+
+            loss = dice_loss(outputs,y) + criterion(outputs, y)                  
+            #loss = focal(labels, y)
+            #loss = loss_bdce(outputs,y)
 
             num_iters += 1
             loss.backward()   #error2

@@ -135,13 +135,13 @@ class MedData_train(torch.utils.data.Dataset):
 
         self.training_set = tio.SubjectsDataset(self.subjects, transform=self.transforms)  #一个集合
 
-#修改了采样
+    #修改了采样
         self.queue_dataset = Queue(
             self.training_set,
             queue_length,
             samples_per_volume,
-            #UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
-            WeightedSampler(patch_size, 'label')
+            UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
+            #WeightedSampler(patch_size, 'label')
         )
 
 
@@ -154,12 +154,13 @@ class MedData_train(torch.utils.data.Dataset):
         if hp.mode == '3d':     
             training_transform = Compose([
             # ToCanonical(),
-            CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size, hp.crop_or_pad_size), padding_mode='reflect',),
+            # CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size, hp.crop_or_pad_size), mask_name='label',padding_mode='reflect',),
             RandomMotion(),
             RandomBiasField(),
             ZNormalization(),
             RandomNoise(),
             RandomFlip(axes=(0,)),
+            Resample((1,1,1)),
             OneOf({
                 RandomAffine(): 0.8,
                 RandomElasticDeformation(): 0.2,

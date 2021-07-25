@@ -4,7 +4,7 @@ import numpy as np
 import glob
 from tqdm import tqdm
 
-#转化数据
+##############################转化数据######################################################
 mhd_list =  glob.glob('org/LNDb-0*.mhd')
 print(mhd_list)
 for i in tqdm(range(len(mhd_list))):  #tqdm
@@ -16,6 +16,8 @@ nii_list = glob.glob('org/nii/*.nii.gz')
 
 
 print(nii_list)
+
+################################肺窗###################################################
 for i in tqdm(range(len(nii_list))):
     X = nib.load(nii_list[i])
 
