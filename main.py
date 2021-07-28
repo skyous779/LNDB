@@ -62,10 +62,10 @@ def parse_training_args(parser):
 
     # training
     training = parser.add_argument_group('training setup')
-    training.add_argument('--epochs', type=int, default=2, help='Number of total epochs to run')
+    training.add_argument('--epochs', type=int, default=1, help='Number of total epochs to run')
     training.add_argument('--epochs-per-checkpoint', type=int, default=50, help='Number of epochs per checkpoint')
-    training.add_argument('--batch', type=int, default=2, help='batch-size')  
-    training.add_argument('--sample', type=int, default=4, help='number of samples during training')  
+    training.add_argument('--batch', type=int, default=16, help='batch-size')  
+    training.add_argument('--sample', type=int, default=4, help='number of samples during training')   #debug 先去掉便于debug
 
     parser.add_argument(
         '-k',
@@ -188,11 +188,11 @@ def train():
 
     model.cuda()
 
-    from loss_function import Binary_Loss,DiceLoss,FocalLoss,BinaryDiceLoss
+    from loss_function import Binary_Loss,DiceLoss,FocalLoss,BinaryDiceLoss,tversky_loss
     
     criterion = Binary_Loss().cuda()
 
-    #focal = FocalLoss().cuda()
+    focal = FocalLoss().cuda()
     
     dice_loss=BinaryDiceLoss().cuda()
     
@@ -218,12 +218,13 @@ def train():
 
 
     for epoch in range(1, epochs + 1):
+
+
         print("epoch:"+str(epoch))
         epoch += elapsed_epochs
 
         train_epoch_avg_loss = 0.0
         num_iters = 0
-
 
         for i, batch in enumerate(train_loader):
             
@@ -282,19 +283,24 @@ def train():
 
             y = y/255.
 
-            # alpha=0.25
-            # gamma=2
-            # BCE_loss = F.binary_cross_entropy(outputs, y).cuda
-            # #BCE_loss = BCE_loss_fuc(outputs, y)
-            # pt = torch.exp(-BCE_loss)
-            # F_loss = alpha * (1-pt)**gamma * BCE_loss
-            # loss = torch.mean(F_loss)
 
-            #loss = criterion(outputs, y)    
 
-            loss = dice_loss(outputs,y) + criterion(outputs, y)                  
+            loss1 = dice_loss(outputs,y)
+            #loss2 = criterion(outputs, y)
+            loss3  = focal(outputs, y)
+
+            #print("dice_loss:",str(loss1.item())," BCE loss:",str(loss2.item())) 
+            ''' Binary Cross Entropy + Dice loss
+                添加二分类交叉熵损失函数，在数据较为平衡的情况下有改善作用，但是在数据极度不均衡的情况下，
+                交叉熵损失会在几个训练之后远小于Dice损失，效果会损失。'''
+
+            #print("dice_loss:",str(loss1.item())," focal_loss:",str(loss3.item()))
+
+
+            #loss = loss1 + loss3            
             #loss = focal(labels, y)
             #loss = loss_bdce(outputs,y)
+            loss = tversky_loss(outputs,y)
 
             num_iters += 1
             loss.backward()   #error2
@@ -314,8 +320,7 @@ def train():
 
             print("loss:"+str(loss.item()))
             print('lr:'+str(scheduler._last_lr[0]))
-
-            
+     
 
         scheduler.step()
 

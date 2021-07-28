@@ -1,3 +1,5 @@
+#测试采样方式
+
 import torch
 import torchio as tio
 transform = tio.Resample((1, 1, 1)) 

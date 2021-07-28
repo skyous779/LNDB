@@ -1,3 +1,4 @@
+#根据matlab的思路做的python版的全局阈值分割法，虽然速度比较慢，但分割比较准确！
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -5,11 +6,8 @@ import nibabel as nib
 import scipy as sp
 from scipy import ndimage
 from tqdm import tqdm
-X = nib.load('nii\LNDb-0001.nii.gz')
-X_data = X.get_data() 
-r, c, h = X_data.shape
-affine = X.affine.copy()
-hdr = X.header.copy()
+import glob
+
 
 
 def cul_S(path,n):
@@ -122,6 +120,50 @@ def delete_1000(img):
             cv2.fillPoly(img, [contours[k]], 0)
     return img
 
+
+def compose_seg_lung(org_path,save_path):
+    org_list = sorted(glob.glob(org_path+'*nii.gz'))
+    print(org_list)
+    
+    for num_org in tqdm(range(67, len(org_list))):
+        try:  
+            X = nib.load(org_list[num_org])
+            X_data = X.get_data() 
+            r, c, h = X_data.shape
+            affine = X.affine.copy()
+            hdr = X.header.copy()
+
+            for n in range(h):
+                org = X_data[:,:,n]
+                img = org.copy()
+                img = IterationThreshold(img)
+                img = open_cul(img)
+                img2 = img.copy()
+                img = find_max_region(img)
+                img = flood_fill(img)
+                out_img = img - img2
+                out_img = delete_1000(out_img)
+                # cv2.imshow('lung', out_img)
+                # cv2.waitKey(10)
+                out_img = out_img/255
+                X_data[:,:,n] = org*out_img 
+            new_nii = nib.Nifti1Image(X_data, affine, hdr)
+            nib.save(new_nii, save_path+org_list[num_org][-16:]) 
+        except:
+            print(org_list[num_org][-16:]+" has error")
+
+
+compose_seg_lung('nii/','nii_lung/')
+
+
+
+
+
+# X = nib.load('nii\LNDb-0001.nii.gz')
+# X_data = X.get_data() 
+# r, c, h = X_data.shape
+# affine = X.affine.copy()
+# hdr = X.header.copy()
 # test = nib.load("nii\LNDb-0001.nii.gz")
 # data = test.get_data()
 # img = data[:,:,200]
@@ -154,23 +196,23 @@ def delete_1000(img):
 
 
 
-for n in tqdm(range(h)):
-    org = X_data[:,:,n]
-    img = org.copy()
-    img = IterationThreshold(img)
-    img = open_cul(img)
-    img2 = img.copy()
-    img = find_max_region(img)
-    img = flood_fill(img)
-    out_img = img - img2
-    out_img = delete_1000(out_img)
-    cv2.imshow('lung', out_img)
-    cv2.waitKey(10)
-    out_img = out_img/255
-    X_data[:,:,n] = org*out_img
+# for n in tqdm(range(h)):
+#     org = X_data[:,:,n]
+#     img = org.copy()
+#     img = IterationThreshold(img)
+#     img = open_cul(img)
+#     img2 = img.copy()
+#     img = find_max_region(img)
+#     img = flood_fill(img)
+#     out_img = img - img2
+#     out_img = delete_1000(out_img)
+#     cv2.imshow('lung', out_img)
+#     cv2.waitKey(10)
+#     out_img = out_img/255
+#     X_data[:,:,n] = org*out_img
 
     
-    n += 1
+#    n += 1
 # new_nii = nib.Nifti1Image(X_data, affine, hdr)
 # nib.save(new_nii, 'test.nii.gz')
 

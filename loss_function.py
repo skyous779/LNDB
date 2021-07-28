@@ -41,6 +41,20 @@ class Binary_Loss(nn.Module):
        
         return loss
 
+def tversky_loss(inputs, targets, beta=0.7, weights=None):
+    
+    loss = 0.0
+    prob = inputs
+    ref = targets
+
+    alpha = 1.0-beta
+
+    tp = (ref*prob).sum()
+    fp = ((1-ref)*prob).sum()
+    fn = (ref*(1-prob)).sum()
+    tversky = tp/(tp + alpha*fp + beta*fn)
+    loss = loss + (1-tversky)
+    return loss
 
 
 
@@ -138,7 +152,7 @@ class DiceLoss(nn.Module):
 
 
 class FocalLoss(nn.Module):
-    def __init__(self, alpha=0.2, gamma=2, logits=False, reduce=True):
+    def __init__(self, alpha=0.75, gamma=2, logits=True, reduce=True):
         super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma

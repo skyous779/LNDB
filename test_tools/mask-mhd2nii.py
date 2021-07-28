@@ -1,3 +1,5 @@
+#用于批量处理mask文件，生成nii文件，并且归一化
+
 import SimpleITK as sitk
 import nibabel as nib
 import numpy as np
@@ -18,7 +20,7 @@ from tqdm import tqdm
 
 
 ##############################像素值修改###########################################
-nii_list = glob.glob('mask/mask_nii/*rad1.nii.gz')   #j基于rad1上合并像素
+nii_list = glob.glob('mask/mask_nii/*0048_rad1.nii.gz')   #j基于rad1上合并像素
 
 nii_list = sorted(nii_list)
 #print(nii_list)

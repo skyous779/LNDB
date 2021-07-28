@@ -16,6 +16,7 @@ import torchio
 from torchio import ScalarImage, LabelMap, Subject, SubjectsDataset, Queue
 from torchio.data import UniformSampler
 from torchio.data import WeightedSampler
+from torchio.data import LabelSampler
 from torchio.transforms import (
     RandomFlip,
     RandomAffine,
@@ -47,10 +48,9 @@ class MedData_train(torch.utils.data.Dataset):
         else:
             raise Exception('no such kind of mode!')
 
-        queue_length = 5
-        samples_per_volume = 5
-
-
+        queue_length = 16
+        samples_per_volume = 4
+    
         self.subjects = []
 
         if (hp.in_class == 1) and (hp.out_class == 1) :
@@ -142,6 +142,7 @@ class MedData_train(torch.utils.data.Dataset):
             samples_per_volume,
             UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
             #WeightedSampler(patch_size, 'label')
+            #LabelSampler(patch_size,label_name='label',label_probabilities={0: 0, 255: 1})
         )
 
 
@@ -154,13 +155,14 @@ class MedData_train(torch.utils.data.Dataset):
         if hp.mode == '3d':     
             training_transform = Compose([
             # ToCanonical(),
+            #去掉crop,因为自定义了crop对数据进行了预处理
             # CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size, hp.crop_or_pad_size), mask_name='label',padding_mode='reflect',),
             RandomMotion(),
             RandomBiasField(),
             ZNormalization(),
             RandomNoise(),
             RandomFlip(axes=(0,)),
-            Resample((1,1,1)),
+            Resample((1,1,1)),    #重采样
             OneOf({
                 RandomAffine(): 0.8,
                 RandomElasticDeformation(): 0.2,
@@ -168,7 +170,7 @@ class MedData_train(torch.utils.data.Dataset):
             
         elif hp.mode == '2d':
             training_transform = Compose([
-            CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size,1), padding_mode='reflect'),
+            #CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size,1), padding_mode='reflect'),
             # RandomMotion(),
             RandomBiasField(),
             ZNormalization(),

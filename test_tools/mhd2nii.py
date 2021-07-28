@@ -1,3 +1,5 @@
+#测试转化格式，可以查看affine，hdr,data等是否有改变
+
 import SimpleITK as sitk
 import glob
 from tqdm import tqdm
