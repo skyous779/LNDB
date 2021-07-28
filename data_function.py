@@ -140,8 +140,8 @@ class MedData_train(torch.utils.data.Dataset):
             self.training_set,
             queue_length,
             samples_per_volume,
-            UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
-            #WeightedSampler(patch_size, 'label')
+            #UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
+            WeightedSampler(patch_size, 'label')
             #LabelSampler(patch_size,label_name='label',label_probabilities={0: 0, 255: 1})
         )
 
@@ -156,7 +156,7 @@ class MedData_train(torch.utils.data.Dataset):
             training_transform = Compose([
             # ToCanonical(),
             #去掉crop,因为自定义了crop对数据进行了预处理
-            # CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size, hp.crop_or_pad_size), mask_name='label',padding_mode='reflect',),
+            CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size, hp.crop_or_pad_size), mask_name='label',padding_mode='reflect',),
             RandomMotion(),
             RandomBiasField(),
             ZNormalization(),

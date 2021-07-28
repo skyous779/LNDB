@@ -1,6 +1,5 @@
 #用于批量处理mask文件，生成nii文件，并且归一化
 
-import SimpleITK as sitk
 import nibabel as nib
 import numpy as np
 import glob

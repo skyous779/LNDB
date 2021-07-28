@@ -265,7 +265,7 @@ def train():
                 x = x.squeeze(4)
                 y = y.squeeze(4)
 
-                y = y/255.   #怪不得我的数据变成0-1
+                #y = y/255.   #怪不得我的数据变成0-1
 
             # print(y.max())
 
@@ -281,7 +281,7 @@ def train():
             #outputs = outputs.type(torch.FloatTensor).cuda()
             #outputs = outputs.to(device)
 
-            y = y/255.
+            #y = y/255.
 
 
 
@@ -531,7 +531,7 @@ def test():
 
                 labels = logits.clone()
 
-                labels[labels>0.5] = 255
+                labels[labels>0.5] = 1
                 labels[labels<=0.5] = 0
 
                 aggregator.add_batch(logits, locations)
