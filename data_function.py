@@ -48,7 +48,7 @@ class MedData_train(torch.utils.data.Dataset):
         else:
             raise Exception('no such kind of mode!')
 
-        queue_length = 16
+        queue_length = 4
         samples_per_volume = 4
     
         self.subjects = []
@@ -141,8 +141,9 @@ class MedData_train(torch.utils.data.Dataset):
             queue_length,
             samples_per_volume,
             #UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
-            WeightedSampler(patch_size, 'label')
+            WeightedSampler(patch_size, 'label'),
             #LabelSampler(patch_size,label_name='label',label_probabilities={0: 0, 255: 1})
+            num_workers = 1
         )
 
 

@@ -64,7 +64,7 @@ def parse_training_args(parser):
     training = parser.add_argument_group('training setup')
     training.add_argument('--epochs', type=int, default=1, help='Number of total epochs to run')
     training.add_argument('--epochs-per-checkpoint', type=int, default=50, help='Number of epochs per checkpoint')
-    training.add_argument('--batch', type=int, default=16, help='batch-size')  
+    training.add_argument('--batch', type=int, default=20, help='batch-size')  
     training.add_argument('--sample', type=int, default=4, help='number of samples during training')   #debug 先去掉便于debug
 
     parser.add_argument(
@@ -268,7 +268,7 @@ def train():
                 #y = y/255.   #怪不得我的数据变成0-1
 
             # print(y.max())
-
+            
             outputs = model(x)
 
 
@@ -281,8 +281,10 @@ def train():
             #outputs = outputs.type(torch.FloatTensor).cuda()
             #outputs = outputs.to(device)
 
+            print(x.max())
             #y = y/255.
-
+            print(y.max())
+            print(outputs.max())
 
 
             loss1 = dice_loss(outputs,y)
@@ -294,13 +296,13 @@ def train():
                 添加二分类交叉熵损失函数，在数据较为平衡的情况下有改善作用，但是在数据极度不均衡的情况下，
                 交叉熵损失会在几个训练之后远小于Dice损失，效果会损失。'''
 
-            #print("dice_loss:",str(loss1.item())," focal_loss:",str(loss3.item()))
+            print("dice_loss:",str(loss1.item())," focal_loss:",str(loss3.item()))
 
 
-            #loss = loss1 + loss3            
+            loss = loss1 + loss3            
             #loss = focal(labels, y)
             #loss = loss_bdce(outputs,y)
-            loss = tversky_loss(outputs,y)
+            #loss = tversky_loss(outputs,y)  
 
             num_iters += 1
             loss.backward()   #error2
@@ -368,16 +370,16 @@ def train():
                 outputs = outputs[0].cpu().detach().numpy()
                 affine = batch['source']['affine'][0].numpy()
 
-                #屏蔽以下内容                    
-                # if (hp.in_class == 1) and (hp.out_class == 1) :
-                #     source_image = torchio.ScalarImage(tensor=x, affine=affine)
-                #     source_image.save(os.path.join(args.output_dir,("step-{}-source.mhd").format(epoch)))
+                   
+                if (hp.in_class == 1) and (hp.out_class == 1) :
+                    source_image = torchio.ScalarImage(tensor=x, affine=affine)
+                    source_image.save(os.path.join(args.output_dir,("step-{}-source.nii.gz").format(epoch)))
 
-                #     label_image = torchio.ScalarImage(tensor=y, affine=affine)
-                #     label_image.save(os.path.join(args.output_dir,("step-{}-gt.mhd").format(epoch)))
+                    label_image = torchio.ScalarImage(tensor=y, affine=affine)
+                    label_image.save(os.path.join(args.output_dir,("step-{}-gt.nii.gz").format(epoch)))
 
-                #     output_image = torchio.ScalarImage(tensor=outputs, affine=affine)
-                #     output_image.save(os.path.join(args.output_dir,("step-{}-predict.mhd").format(epoch)))
+                    output_image = torchio.ScalarImage(tensor=outputs, affine=affine)
+                    output_image.save(os.path.join(args.output_dir,("step-{}-predict.nii.gz").format(epoch)))
                 
                 # else:   #多分类
                 #     y = np.expand_dims(y, axis=1)
@@ -531,8 +533,8 @@ def test():
 
                 labels = logits.clone()
 
-                labels[labels>0.5] = 1
-                labels[labels<=0.5] = 0
+                labels[labels>0.9] = 1
+                labels[labels<=0.9] = 0
 
                 aggregator.add_batch(logits, locations)
                 aggregator_1.add_batch(labels, locations)

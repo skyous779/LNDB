@@ -104,7 +104,7 @@ class BinaryDiceLoss(nn.Module):
 
         num = torch.sum(torch.mul(predict, target), dim=1) + self.smooth
         den = torch.sum(predict.pow(self.p) + target.pow(self.p), dim=1) + self.smooth
-
+        print(den)
         loss = 1 - num / den
 
         if self.reduction == 'mean':
@@ -161,7 +161,8 @@ class FocalLoss(nn.Module):
  
     def forward(self, inputs, targets):
         if self.logits:
-            BCE_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduce=False)
+            BCE_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction='none')  #reduce 已经被弃用 
+            #print("BCEloss = ",BCE_loss)
         else:
             BCE_loss = F.binary_cross_entropy(inputs, targets)
         pt = torch.exp(-BCE_loss)

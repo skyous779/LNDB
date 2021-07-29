@@ -3,13 +3,13 @@ import nibabel as nib
 import numpy as np
 import glob
 from tqdm import tqdm
-mask_list = sorted(glob.glob('mask/mask_merge/*nii.gz'))
-org_list = sorted(glob.glob('nii_lung_2/*.nii.gz')) 
+mask_list = sorted(glob.glob('labelsTs/*.nii.gz'))
+org_list = sorted(glob.glob('imagesTs/*.nii.gz')) 
 assert len(mask_list) == len(org_list),'wocao'+'len(org) ~= len(mask)'
 
 def my_clip(data,mask):
     x,y,z = data.shape
-    margin = 3
+    margin = 10
     ####################z##################
     for i in range(z):
         #print(i)
@@ -83,8 +83,8 @@ for i in tqdm(range(len(mask_list))):
     new_org = nib.Nifti1Image(org_data, org_affine, org_hdr)
     new_mask = nib.Nifti1Image(mask_data, mask_affine, mask_hdr)
 
-    nib.save(new_org, 'org_train/'+org_list[i][11:])
-    nib.save(new_mask,'mask_train/'+mask_list[i][16:])
+    nib.save(new_org, 'imagesTs_crop/'+org_list[i][9:])
+    nib.save(new_mask,'labelsTs_crop/'+mask_list[i][9:])
 
 
 
