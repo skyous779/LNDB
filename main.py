@@ -287,19 +287,20 @@ def train():
             print(outputs.max())
 
 
-            loss1 = dice_loss(outputs,y)
+            #loss1 = dice_loss(outputs,y)
             #loss2 = criterion(outputs, y)
-            loss3  = focal(outputs, y)
+            #loss3  = focal(outputs, y)
+            loss4 = tversky_loss(outputs, y)
 
             #print("dice_loss:",str(loss1.item())," BCE loss:",str(loss2.item())) 
             ''' Binary Cross Entropy + Dice loss
                 添加二分类交叉熵损失函数，在数据较为平衡的情况下有改善作用，但是在数据极度不均衡的情况下，
                 交叉熵损失会在几个训练之后远小于Dice损失，效果会损失。'''
 
-            print("dice_loss:",str(loss1.item())," focal_loss:",str(loss3.item()))
+            #print("dice_loss:",str(loss1.item())," focal_loss:",str(loss3.item()))
 
 
-            loss = loss1 + loss3            
+            loss = loss4           
             #loss = focal(labels, y)
             #loss = loss_bdce(outputs,y)
             #loss = tversky_loss(outputs,y)  

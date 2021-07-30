@@ -1,6 +1,6 @@
 class hparams:
 
-    train_or_test = 'test'
+    train_or_test = 'train'
     debug = False
     mode = '3d' # '2d or '3d'
     out_class = 1
@@ -12,8 +12,8 @@ class hparams:
     fold_arch = '*.nii.gz'
 
 
-    source_train_dir = 'imagesTr/'
-    label_train_dir = 'labelsTr/'
+    source_train_dir = '/home/workspace/LNDB/imageTr_2/'
+    label_train_dir = '/home/workspace/LNDB/labelsTr/'
     source_test_dir = 'imagesTs_crop/'
     label_test_dir = 'labelsTs_crop/'
 
