@@ -48,8 +48,8 @@ class MedData_train(torch.utils.data.Dataset):
         else:
             raise Exception('no such kind of mode!')
 
-        queue_length = 4
-        samples_per_volume = 4
+        queue_length = 3
+        samples_per_volume = 3
     
         self.subjects = []
 
@@ -141,9 +141,9 @@ class MedData_train(torch.utils.data.Dataset):
             queue_length,
             samples_per_volume,
             #UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
-            WeightedSampler(patch_size, 'label'),
-            #LabelSampler(patch_size,label_name='label',label_probabilities={0: 0, 255: 1})
-            num_workers = 1
+            #WeightedSampler(patch_size, 'label'),
+            LabelSampler(patch_size,label_name='label',label_probabilities={0: 0.25, 255: 0.75}),
+            num_workers = 0,
         )
 
 
@@ -200,17 +200,17 @@ class MedData_test(torch.utils.data.Dataset):
 
             images_dir = Path(images_dir)
             self.image_paths = sorted(images_dir.glob(hp.fold_arch))
-            labels_dir = Path(labels_dir)
-            self.label_paths = sorted(labels_dir.glob(hp.fold_arch))
+            # labels_dir = Path(labels_dir)
+            # self.label_paths = sorted(labels_dir.glob(hp.fold_arch))
             
-            for (image_path, label_path) in zip(self.image_paths, self.label_paths):
-                
+            #for (image_path, label_path) in zip(self.image_paths, self.label_paths):
+            for image_path  in  zip(self.image_paths):    
                 # ct = tio.ScalarImage(image_path)
                 # ct.data = torch.clamp(ct.data,min =-512,max=512)
                 
                 subject = tio.Subject(
                     source=tio.ScalarImage(image_path),
-                    label=tio.LabelMap(label_path),
+                    #label=tio.LabelMap(label_path),
                 )
                 self.subjects.append(subject)
         else:

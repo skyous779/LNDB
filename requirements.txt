@@ -1,0 +1,14 @@
+asn1crypto==0.24.0
+cryptography==2.1.4
+idna==2.6
+keyring==10.6.0
+keyrings.alt==3.0
+numpy==1.19.5
+pycrypto==2.6.1
+pycurl==7.43.0.1
+pygobject==3.26.1
+python-apt==1.6.5+ubuntu0.6
+pyxdg==0.25
+SecretStorage==2.3.1
+six==1.11.0
+torch @ file:///home/torch-1.4.0%2Bcu100-cp36-cp36m-linux_x86_64.whl

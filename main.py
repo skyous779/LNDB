@@ -64,7 +64,7 @@ def parse_training_args(parser):
     training = parser.add_argument_group('training setup')
     training.add_argument('--epochs', type=int, default=1, help='Number of total epochs to run')
     training.add_argument('--epochs-per-checkpoint', type=int, default=50, help='Number of epochs per checkpoint')
-    training.add_argument('--batch', type=int, default=20, help='batch-size')  
+    training.add_argument('--batch', type=int, default=3, help='batch-size')  
     training.add_argument('--sample', type=int, default=4, help='number of samples during training')   #debug 先去掉便于debug
 
     parser.add_argument(
@@ -190,7 +190,7 @@ def train():
 
     from loss_function import Binary_Loss,DiceLoss,FocalLoss,BinaryDiceLoss,tversky_loss
     
-    criterion = Binary_Loss().cuda()
+    #criterion = Binary_Loss().cuda()
 
     focal = FocalLoss().cuda()
     
@@ -281,26 +281,26 @@ def train():
             #outputs = outputs.type(torch.FloatTensor).cuda()
             #outputs = outputs.to(device)
 
-            print(x.max())
-            #y = y/255.
-            print(y.max())
-            print(outputs.max())
+            # print(x.max())
+            # #y = y/255.
+            # print(y.max())
+            # print(outputs.max())
 
 
-            #loss1 = dice_loss(outputs,y)
+            loss1 = dice_loss(outputs,y)
             #loss2 = criterion(outputs, y)
-            #loss3  = focal(outputs, y)
-            loss4 = tversky_loss(outputs, y)
+            loss3  = focal(outputs, y)
+            #loss4 = tversky_loss(outputs, y)
 
             #print("dice_loss:",str(loss1.item())," BCE loss:",str(loss2.item())) 
             ''' Binary Cross Entropy + Dice loss
                 添加二分类交叉熵损失函数，在数据较为平衡的情况下有改善作用，但是在数据极度不均衡的情况下，
                 交叉熵损失会在几个训练之后远小于Dice损失，效果会损失。'''
 
-            #print("dice_loss:",str(loss1.item())," focal_loss:",str(loss3.item()))
+            print("dice_loss:",str(loss1.item())," focal_loss:",str(loss3.item()))
 
 
-            loss = loss4           
+            loss = loss1+loss3           
             #loss = focal(labels, y)
             #loss = loss_bdce(outputs,y)
             #loss = tversky_loss(outputs,y)  
@@ -496,7 +496,7 @@ def test():
 
 
     test_dataset = MedData_test(source_test_dir,label_test_dir)
-    znorm = ZNormalization()
+    #znorm = Znormalization()
 
     if hp.mode == '3d':
         patch_overlap = 4,4,4
@@ -507,12 +507,14 @@ def test():
 
 
     for i,subj in enumerate(test_dataset.subjects):
-        subj = znorm(subj)
+        #subj = znorm(subj)
         grid_sampler = torchio.inference.GridSampler(
                 subj,
                 patch_size,
                 patch_overlap,
             )
+        print("len:",len(grid_sampler))
+
 
         patch_loader = torch.utils.data.DataLoader(grid_sampler, batch_size=16)
         aggregator = torchio.inference.GridAggregator(grid_sampler)
@@ -534,11 +536,11 @@ def test():
 
                 labels = logits.clone()
 
-                labels[labels>0.9] = 1
-                labels[labels<=0.9] = 0
+                labels[labels>0.5] = 1
+                labels[labels<=0.5] = 0
 
-                aggregator.add_batch(logits, locations)
-                aggregator_1.add_batch(labels, locations)
+                aggregator.add_batch(logits, locations)   #float
+                aggregator_1.add_batch(labels, locations)   #ini
         output_tensor = aggregator.get_output_tensor()
         output_tensor_1 = aggregator_1.get_output_tensor()
 
@@ -547,8 +549,8 @@ def test():
 
         affine = subj['source']['affine']
         if (hp.in_class == 1) and (hp.out_class == 1) :
-            #label_image = torchio.ScalarImage(tensor=output_tensor.numpy(), affine=affine)
-            #label_image.save(os.path.join(output_dir_test,str(i)+"_result_float.nii.gz"))
+            label_image = torchio.ScalarImage(tensor=output_tensor.numpy(), affine=affine)   
+            label_image.save(os.path.join(output_dir_test,str(i)+"_result_float.nii.gz"))
             
             #0.5
             output_image = torchio.ScalarImage(tensor=output_tensor_1.numpy(), affine=affine)
@@ -582,7 +584,7 @@ def test():
             output_image_vein_int.save(os.path.join(output_dir_test,str(i)+"_result_int_vein.mhd"))           
 
 
-   
+
 
 if __name__ == '__main__':
     if hp.train_or_test == 'train':
