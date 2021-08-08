@@ -48,8 +48,8 @@ class MedData_train(torch.utils.data.Dataset):
         else:
             raise Exception('no such kind of mode!')
 
-        queue_length = 3
-        samples_per_volume = 3
+        queue_length = 32
+        samples_per_volume = 16
     
         self.subjects = []
 
@@ -142,17 +142,14 @@ class MedData_train(torch.utils.data.Dataset):
             samples_per_volume,
             #UniformSampler(patch_size), #Randomly extract patches from a volume with uniform probability.
             #WeightedSampler(patch_size, 'label'),
-            LabelSampler(patch_size,label_name='label',label_probabilities={0: 0.25, 255: 0.75}),
+            LabelSampler(patch_size,label_name='label',label_probabilities={0: 0.2, 255: 0.8}),
             num_workers = 0,
         )
 
 
 
 
-    def transform(self):
-
-
-        
+    def transform(self):   
         if hp.mode == '3d':     
             training_transform = Compose([
             # ToCanonical(),
@@ -171,16 +168,18 @@ class MedData_train(torch.utils.data.Dataset):
             
         elif hp.mode == '2d':
             training_transform = Compose([
-            #CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size,1), padding_mode='reflect'),
+            CropOrPad((hp.crop_or_pad_size, hp.crop_or_pad_size,1), padding_mode='reflect'),
             # RandomMotion(),
             RandomBiasField(),
             ZNormalization(),
             RandomNoise(),
             RandomFlip(axes=(0,)),
-            OneOf({
-                RandomAffine(): 0.8,
-                RandomElasticDeformation(): 0.2,
-            }),])
+            #Resample((1,1,1)),
+            # OneOf({
+            #     RandomAffine(): 0.8,
+            #     RandomElasticDeformation(): 0.2,
+            # }),
+            ])
         else:
             raise Exception('no such kind of mode!')
 
